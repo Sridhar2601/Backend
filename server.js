@@ -1,28 +1,25 @@
-// server.js
-require('dotenv').config(); // Load .env variables
-
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Middleware
-app.use(cors()); // Allow all origins for local testing
+app.use(cors());
 app.use(bodyParser.json());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,      // localhost
-  user: process.env.DB_USER,      // root
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+  host: "localhost",   // change if needed
+  user: "root",        // your MySQL username
+  password: "Sridhar@2004", // your MySQL password
+  database: "portfolio_db"
 });
 
-// Connect to MySQL
-db.connect(err => {
+// Connect to DB
+db.connect((err) => {
   if (err) {
     console.error("Database connection failed:", err);
     return;
@@ -30,14 +27,7 @@ db.connect(err => {
   console.log("Connected to MySQL database!");
 });
 
-// Routes
-
-// Root route
-app.get("/", (req, res) => {
-  res.send("Backend is running!");
-});
-
-// POST: Save contact message
+// API route to save contact form
 app.post("/api/contact", (req, res) => {
   const { name, email, message } = req.body;
 
@@ -52,31 +42,6 @@ app.post("/api/contact", (req, res) => {
       return res.status(500).json({ error: "Database error" });
     }
     res.status(200).json({ success: true, message: "Message saved successfully!" });
-  });
-});
-
-// GET: Fetch all contact messages
-app.get("/api/contact", (req, res) => {
-  const sql = "SELECT * FROM contacts ORDER BY created_at DESC";
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching data:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.status(200).json(results);
-  });
-});
-
-// DELETE: Delete message by ID
-app.delete("/api/contact/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "DELETE FROM contacts WHERE id = ?";
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error("Error deleting message:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.status(200).json({ message: "Message deleted successfully!" });
   });
 });
 
