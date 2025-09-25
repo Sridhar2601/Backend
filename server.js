@@ -1,89 +1,6 @@
-// // console.log("Server is starting...");
-// // console.log("Server is running on port 3000");
-// // console.log("started");
-
-
-// const express = require("express");
-// const mysql = require("mysql2");
-// const cors = require("cors");
-// const bodyParser = require("body-parser");
-
-// const app = express();
-// const PORT = 5000;
-
-// // Middleware
-// app.use(cors());
-// app.use(bodyParser.json());
-
-// // MySQL connection
-// const db = mysql.createConnection({
-//   host: "localhost",   // change if needed
-//   user: "root",        // your MySQL username
-//   password: "Sridhar@2004", // your MySQL password
-//   database: "portfolio_db"
-// });
-
-// // Connect to DB
-// db.connect((err) => {
-//   if (err) {
-//     console.error("Database connection failed:", err);
-//     return;
-//   }
-//   console.log("Connected to MySQL database!");
-// });
-
-// // API route to save contact form
-// app.post("/api/contact", (req, res) => {
-//   const { name, email, message } = req.body;
-
-//   if (!name || !email || !message) {
-//     return res.status(400).json({ error: "All fields are required" });
-//   }
-
-//   const sql = "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)";
-//   db.query(sql, [name, email, message], (err, result) => {
-//     if (err) {
-//       console.error("Error inserting data:", err);
-//       return res.status(500).json({ error: "Database error" });
-//     }
-//     res.status(200).json({ success: true, message: "Message saved successfully!" });
-//   });
-// });
-
-// // API route to fetch all contact messages
-// app.get("/api/contact", (req, res) => {
-//   const sql = "SELECT * FROM contacts ORDER BY created_at DESC"; // latest messages first
-//   db.query(sql, (err, results) => {
-//     if (err) {
-//       console.error("Error fetching data:", err);
-//       return res.status(500).json({ error: "Database error" });
-//     }
-//     res.status(200).json(results);
-//   });
-// });
-
-// // Delete a message by ID
-// app.delete("/api/contact/:id", (req, res) => {
-//   const { id } = req.params;
-//   const sql = "DELETE FROM contacts WHERE id = ?";
-//   db.query(sql, [id], (err, result) => {
-//     if (err) {
-//       console.error("Error deleting message:", err);
-//       return res.status(500).json({ error: "Database error" });
-//     }
-//     res.status(200).json({ message: "Message deleted successfully!" });
-//   });
-// });
-
-
-// // Start server
-// app.listen(PORT, () => {
-//   console.log(`Server running at http://localhost:${PORT}`);
-// });
-
-
-require('dotenv').config();
 // server.js
+require('dotenv').config(); // Load .env variables
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -93,29 +10,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+app.use(cors()); // Allow all origins for local testing
 app.use(bodyParser.json());
 
-// Allow requests only from your frontend
-app.use(cors({
-  origin: "https://portfolio-git-main-sridhars-projects-874d305c.vercel.app", // <-- Replace with your Vercel URL
-  methods: ["GET", "POST", "DELETE"],
-  allowedHeaders: ["Content-Type"]
-}));
-
-// MySQL connection using environment variables
-
- // at the very top
-
+// MySQL connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
+  host: process.env.DB_HOST,      // localhost
+  user: process.env.DB_USER,      // root
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME
 });
 
-
-
-// Connect to DB
+// Connect to MySQL
 db.connect(err => {
   if (err) {
     console.error("Database connection failed:", err);
@@ -124,7 +30,14 @@ db.connect(err => {
   console.log("Connected to MySQL database!");
 });
 
-// API route to save contact form
+// Routes
+
+// Root route
+app.get("/", (req, res) => {
+  res.send("Backend is running!");
+});
+
+// POST: Save contact message
 app.post("/api/contact", (req, res) => {
   const { name, email, message } = req.body;
 
@@ -142,7 +55,7 @@ app.post("/api/contact", (req, res) => {
   });
 });
 
-// API route to fetch all contact messages
+// GET: Fetch all contact messages
 app.get("/api/contact", (req, res) => {
   const sql = "SELECT * FROM contacts ORDER BY created_at DESC";
   db.query(sql, (err, results) => {
@@ -154,7 +67,7 @@ app.get("/api/contact", (req, res) => {
   });
 });
 
-// Delete a message by ID
+// DELETE: Delete message by ID
 app.delete("/api/contact/:id", (req, res) => {
   const { id } = req.params;
   const sql = "DELETE FROM contacts WHERE id = ?";
@@ -171,9 +84,3 @@ app.delete("/api/contact/:id", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
-
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "****" : undefined);
-console.log("DB_NAME:", process.env.DB_NAME);
